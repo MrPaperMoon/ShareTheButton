@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /sharedButtons/{token} {
+      function signedIn() { return request.auth != null; }
+      function validButton() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['ownerId', 'id', 'color', 'title', 'actionText', 'notificationText'])
+          && data.keys().hasOnly(['ownerId', 'id', 'color', 'title', 'actionText', 'notificationText'])
+          && data.ownerId == request.auth.uid
+          && data.id is string && data.id.size() > 0 && data.id.size() <= 128
+          && data.color is string
+          && (data.color in ['Pink', 'Lavender', 'Blue', 'Mint', 'Peach']
+            || data.color.matches('#[0-9a-fA-F]{8}'))
+          && data.title is string && data.title.size() > 0 && data.title.size() <= 40
+          && data.actionText is string && data.actionText.size() > 0 && data.actionText.size() <= 24
+          && data.notificationText is string && data.notificationText.size() > 0 && data.notificationText.size() <= 200;
+      }
+      // The random invitation token grants read access. Collection enumeration is forbidden.
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn() && token.matches('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
+        && validButton();
+      allow update: if signedIn() && resource.data.ownerId == request.auth.uid
+        && request.resource.data.id == resource.data.id && validButton();
+      allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+    }
+  }
+}

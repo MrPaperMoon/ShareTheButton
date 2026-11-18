@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Share the button</string>
+    <string name="heart_mark" translatable="false">&lt;3</string>
+    <string name="add_symbol" translatable="false">+</string>
+    <string name="selected_symbol" translatable="false">✓</string>
+    <string name="welcome_tagline">Stay close. With one tap.</string>
+    <string name="continue_google">Continue with Google</string>
+    <string name="continue_apple">Continue with Apple</string>
+    <string name="skip">Skip</string>
+    <string name="retry">Try again</string>
+    <string name="back">Back</string>
+    <string name="my_buttons">My buttons</string>
+    <string name="back_to_buttons">← My buttons</string>
+    <string name="home_tagline">A small tap. A big feeling.</string>
+    <string name="add_button">Add button</string>
+    <string name="empty_title">Connection starts here</string>
+    <string name="empty_description">Create your first button.\nFor example, to say “Miss you”.</string>
+    <string name="open_action">Open action</string>
+    <string name="new_button">New button</string>
+    <string name="create_hint">Choose a color and find your words.</string>
+    <string name="color">Color</string>
+    <string name="button_name">Button name</string>
+    <string name="action_name">Action name</string>
+    <string name="notification_text">Notification text</string>
+    <string name="example_title">Miss you</string>
+    <string name="example_action">SOS</string>
+    <string name="example_notification">I miss you!</string>
+    <string name="example_hug_title">Hug</string>
+    <string name="example_hug_action">Sending a hug</string>
+    <string name="example_hug_notification">Sending you a hug!</string>
+    <string name="cancel">Cancel</string>
+    <string name="create">Create</string>
+    <string name="preview">PREVIEW</string>
+    <string name="home_button_preview">Your button on the home screen</string>
+    <string name="save_error_title">Could not save</string>
+    <string name="got_it">Got it</string>
+    <string name="button_not_found">Button not found</string>
+    <string name="action_tagline">Your words, one tap away</string>
+    <string name="sharing_coming_soon">Invitations and notifications are coming later.</string>
+    <string name="notification_preview">Notification preview</string>
+    <string name="notification_demo">%1$s\n\nThis is a demo: no notification was sent.</string>
+    <string name="character_count">%1$d / %2$d</string>
+    <string name="error_load_button">Could not load the button.</string>
+    <string name="error_load_buttons">Could not load your buttons.</string>
+    <string name="error_save_button">Could not save the button. Your text is still in the form.</string>
+    <string name="color_pink">Pink</string>
+    <string name="color_lavender">Lavender</string>
+    <string name="color_blue">Blue</string>
+    <string name="color_mint">Mint</string>
+    <string name="color_peach">Peach</string>
+    <string name="color_brightness">Brightness</string>
+    <string name="creator_next">Next</string>
+    <string name="creator_previous">Previous step</string>
+    <string name="creator_close">Close</string>
+    <string name="creator_text">Text</string>
+    <string name="creator_review">Review</string>
+    <string name="creator_confirm">Confirm</string>
+    <string name="creator_complete_text">Fill in all three texts before confirming.</string>
+    <string name="creator_close_symbol" translatable="false">×</string>
+    <string name="creator_previous_symbol" translatable="false">←</string>
+    <string name="creator_next_symbol" translatable="false">→</string>
+    <string name="creator_step_number" translatable="false">%1$d</string>
+</resources>
