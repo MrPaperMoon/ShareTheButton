@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "81b8cfa6dfd5eba268853be2dc475680",
+    "identityHash": "268cedf265c6a3e687f3cfee94d96adc",
     "entities": [
       {
         "tableName": "buttons",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `color` TEXT NOT NULL, `title` TEXT NOT NULL, `actionText` TEXT NOT NULL, `notificationText` TEXT NOT NULL, `isOwned` INTEGER NOT NULL, `shareToken` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `color` INTEGER NOT NULL, `title` TEXT NOT NULL, `actionText` TEXT NOT NULL, `notificationText` TEXT NOT NULL, `isOwned` INTEGER NOT NULL, `shareToken` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -17,7 +17,7 @@
           {
             "fieldPath": "color",
             "columnName": "color",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -60,7 +60,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '81b8cfa6dfd5eba268853be2dc475680')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '268cedf265c6a3e687f3cfee94d96adc')"
     ]
   }
 }

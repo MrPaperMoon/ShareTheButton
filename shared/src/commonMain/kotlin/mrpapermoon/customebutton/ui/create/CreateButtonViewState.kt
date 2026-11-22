@@ -1,44 +1,32 @@
 package mrpapermoon.customebutton.ui.create
 
-import mrpapermoon.customebutton.ButtonUiState
-import mrpapermoon.customebutton.entity.ButtonColor
-import mrpapermoon.customebutton.ui.common.ViewError
-
+/** Maximum length of the title and action label, measured as Kotlin string length. */
 const val BUTTON_LIMIT = 24
+
+/** Maximum length of the notification text, measured as Kotlin string length. */
 const val NOTIFICATION_LIMIT = 200
 
+/**
+ * Represents one snapshot of the creation wizard.
+ *
+ * Presentation state for step selection, enabled controls and the save result.
+ * Draft fields and their validation live in [mrpapermoon.customebutton.ButtonUiState].
+ * [createdButtonId] identifies a successfully saved button.
+ *
+ * @property step Active step.
+ * @property enabled Wizard controls enabled.
+ * @property createdButtonId Saved button ID.
+ * @property error Save failure.
+ */
 data class CreateButtonViewState(
-    val step: CreateButtonStep = CreateButtonStep.Color,
-    val draft: ButtonUiState = ButtonUiState(ButtonColor.Pink, "", "", ""),
-    val saving: Boolean = false,
-    val completed: Boolean = false,
-    val error: ViewError? = null
+    val step: CreateButtonStep = CreateButtonStep.entries.first(),
+    val enabled: Boolean = true,
+    val createdButtonId: String? = null,
+    val error: CreateButtonEffect.Error? = null
 ) {
-    val canGoNext: Boolean
-        get() = !saving && !completed && step != CreateButtonStep.Confirm &&
-            (step != CreateButtonStep.Text || canSave)
-
     val canGoBack: Boolean
-        get() = !saving && !completed && step != CreateButtonStep.Color
+        get() = step.ordinal != 0
 
-    val canSave: Boolean
-        get() = draft.title.isNotBlank() && draft.title.length <= BUTTON_LIMIT &&
-            draft.actionText.isNotBlank() && draft.actionText.length <= BUTTON_LIMIT &&
-            draft.notificationText.isNotBlank() && draft.notificationText.length <= NOTIFICATION_LIMIT && !completed
-}
-
-fun CreateButtonViewState.reduce(event: CreateButtonEvent): CreateButtonViewState {
-    if (saving || completed) return this
-    return when (event) {
-        is CreateButtonEvent.ColorChanged -> copy(draft = draft.copy(color = event.color))
-        is CreateButtonEvent.TitleChanged -> copy(draft = draft.copy(title = event.text))
-        is CreateButtonEvent.ActionChanged -> copy(draft = draft.copy(actionText = event.text))
-        is CreateButtonEvent.NotificationChanged -> copy(draft = draft.copy(notificationText = event.text))
-        is CreateButtonEvent.SelectStep -> copy(step = event.step)
-        CreateButtonEvent.Next -> if (canGoNext) copy(step = CreateButtonStep.entries[step.ordinal + 1]) else this
-        CreateButtonEvent.Previous -> if (canGoBack) copy(step = CreateButtonStep.entries[step.ordinal - 1]) else this
-        CreateButtonEvent.Cancel -> copy(completed = true)
-        CreateButtonEvent.DismissError -> copy(error = null)
-        CreateButtonEvent.Save -> this
-    }
+    val canGoNext: Boolean
+        get() = step.ordinal != CreateButtonStep.entries.lastIndex
 }

@@ -25,5 +25,3 @@ dependencyResolutionManagement {
 rootProject.name = "Custome Button"
 include(":app")
 include(":shared")
-
-include(":navigation")

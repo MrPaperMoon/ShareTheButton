@@ -1,5 +1,8 @@
 package mrpapermoon.customebutton.ui.welcome
 
-sealed class WelcomeEvent {
-    data object Skip : WelcomeEvent()
+import mrpapermoon.customebutton.ui.Event
+
+/** Actions supported by the welcome screen. */
+sealed class WelcomeEvent : Event {
+    data class SignIn(val enterMode: WelcomeEnterMode) : WelcomeEvent()
 }

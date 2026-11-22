@@ -1,142 +1,68 @@
 # Share the button
 
-Первый локальный MVP: заблокированные Google/Apple OAuth-кнопки, гостевой вход,
-список кнопок, создание с живым предпросмотром и демонстрация экрана действия.
-Гостевой вход и созданные кнопки сохраняются на устройстве после перезапуска.
-Отмена закрывает форму без сохранения. Черновик переживает поворот экрана.
+**Share the button** — Android-приложение для небольших личных жестов в одно нажатие. Создайте кнопку с собственным цветом, названием и сообщением, а затем поделитесь приглашением по ссылке или QR-коду.
+
+## Что работает
+
+- Гостевой вход и локальный список кнопок сохраняются между запусками.
+- Мастер создания позволяет выбрать цвет, заполнить тексты и посмотреть результат перед сохранением.
+- После сохранения открывается экран приглашения. Готовую ссылку можно скопировать или отправить через системное меню Android. Тот же URI отображается как QR-код.
+
+Входящие ссылки, сканирование QR и добавление полученных кнопок пока в разработке. Google и Apple на экране входа показаны как недоступные опции. Push-уведомления ещё не подключены.
+
+## Запуск
+
+Откройте проект в Android Studio с Android SDK API 37. Gradle использует JDK 25 согласно конфигурации daemon toolchain, целевая версия JVM-кода — 17. Для запуска нужен эмулятор или устройство с Android API 30 и выше. Gradle Wrapper входит в репозиторий.
+
+Плагин Google Services обрабатывает `app/google-services.json` при сборке. Для разработки с локальным backend используйте вариант **debug**. Установите приложение, выберите «Пропустить» → «+», заполните форму и подтвердите создание.
+
+```bash
+./gradlew :app:assembleDebug :app:testDebugUnitTest :shared:jvmTest :app:lintDebug
+```
+
+В Windows используйте `gradlew.bat` с теми же задачами. Тест сохранения приглашений в настоящей Room-базе запускается на подключённом устройстве или эмуляторе:
+
+```bash
+./gradlew :app:connectedDebugAndroidTest
+```
+
+## Варианты сборки
+
+| Вариант | Хранилище приглашений | Для чего подходит |
+| --- | --- | --- |
+| `debug` | Таблица `remote_buttons` в локальной Room-базе `button_remote_stub.db` | Проверка публикации без сети. Приглашение доступно только в пределах этой установки. |
+| `release` | Cloud Firestore через официальный Android Firebase SDK | Публикация в настроенном Firebase-проекте. |
+
+В обоих вариантах список берётся из Room (`buttons.db`), а гостевая сессия хранится в Preferences DataStore. В Room цвет представлен ARGB `Int`, в Firestore — беззнаковым ARGB `Long`. ID кнопки и токен приглашения — разные UUID. При повторной попытке публикации используется сохранённый токен.
+
+Для release зарегистрируйте Android-приложение `mrpapermoon.customebutton` в своём Firebase-проекте, положите его `google-services.json` в `app/`, включите Cloud Firestore и Anonymous Authentication. Разверните [правила Firestore](firestore.rules) в том же проекте. Сборка приложения правила не публикует.
 
 ## Структура
 
-- `ui/welcome`, `ui/home`, `ui/create`, `ui/action` — отдельные экраны.
-  Screen и Android-обёртка `*ViewModelImpl` находятся в app; ViewModel, ViewState,
-  sealed Event, EventHandler и контракты — в одноимённых пакетах `shared/commonMain`.
-- Головная функция Screen получает ViewModel через Hilt, подписывается на ViewState через
-  collectAsStateWithLifecycle и передаёт его в перегрузку Screen(state). ViewModel публикуется
-  через CompositionLocal как интерфейс EventHandler с методом onEvent.
-- Screen принимает только ViewState; события отправляет через CompositionLocal.
-  Общие визуальные компоненты находятся в ui/components.
-- Navigation Compose управляет back stack и временем жизни ViewModel.
-  Создание кнопки — dialog destination. Черновик сохраняется через SavedStateHandle;
-  после закрытия диалога его ViewModel уничтожается.
-- MainActivity создаёт Android-обёртку SharedViewModelImpl через by viewModels().
-  ShareButtonApp публикует её как LocalNavigationEventHandler и единолично
-  обрабатывает навигационные события, когда Activity находится в RESUMED.
-  Экранные ViewModel отвечают только за состояние и события своего экрана;
-  головные Screen отправляют переходы по результатам входа и сохранения.
-- `shared/commonMain` — модели, репозитории и интерфейс LightDataStorage.
-  Android-адаптер использует Preferences DataStore, зависимости собирает Hilt.
-- `app/src/test` — тесты событий экранов и Android-хранилища.
-  `shared/commonTest` — тесты репозиториев.
-- Таргеты shared: Android, JVM, iOS ARM64 и iOS Simulator ARM64.
+- [`app/`](app/) — запуск Android, выбор источника приглашений для каждой сборки и подключение платформенных сервисов.
+- [`shared/src/commonMain/`](shared/src/commonMain/) — экраны и ресурсы Compose Multiplatform, навигация, ViewModel, граф Metro, репозитории и доступ к данным.
+- [`shared/src/androidMain/`](shared/src/androidMain/) — официальные Firebase Auth и Firestore SDK, Crashlytics, Android Sharesheet, системный буфер обмена и ZXing.
+- [`shared/schemas/`](shared/schemas/) — экспорт схем Room для локальной базы.
+- [`SHARING.md`](SHARING.md) — детали публикации и структура документов Firestore.
 
-Android UI пока не переносится в shared. iOS-приложение и его UI ещё не созданы;
-для сборки iOS-таргетов нужны macOS и Xcode.
+Модуль `shared` настроен для Android, JVM, iOS ARM64 и iOS Simulator ARM64. Готовый хост приложения есть для Android. Контракты, параметры и ошибки публичного API описаны в KDoc рядом с исходным кодом.
 
-## Проверка
+## Архитектура и диагностика
 
-```powershell
-./gradlew.bat :app:assembleDebug :app:testDebugUnitTest :shared:jvmTest :app:lintDebug
-```
+Контракты репозиториев связывают presentation с data-слоем. Room хранит кнопки, Preferences DataStore — гостевую сессию.
+Общий `FirestoreButtonDataSource` использует `AuthFacade` и `FirestoreFacade`. Android-адаптеры обращаются к официальным Firebase SDK.
 
-В Android Studio запустить конфигурацию `app` (Android API 30+).
-На чистой установке: «Пропустить» → «+» → цвет и три текста → «Создать».
-Пример: «Скучаю» / «SOS» / «Я скучаю!». Кнопка появляется в списке;
-нажатие открывает круглый элемент действия. Его нажатие показывает локальный
-предпросмотр уведомления, ничего не отправляя.
+ViewModel принимают `Event` через `EventHandler`. Мастер создания разделяет состояние шагов и черновик кнопки, изменения применяются через reducers.
+`NavigationDispatcher` передаёт события хосту с `NavController`. Зависимости собирает Metro.
 
-OAuth, сервер, токены приглашений, участники и push-уведомления — следующие этапы.
-Локальный идентификатор кнопки не является токеном приглашения.
+Log4j подключён на Android и JVM. Crashlytics собирает Android-сбои и получает обработанные ошибки через фасад логирования.
+На iOS доступны реализации share и clipboard, логирование использует `NSLog`. Нативные адаптеры Auth, Firestore, Crashlytics и генератор QR для iOS ещё предстоит подключить.
 
-KMP Android-модуль использует официальный плагин:
-https://developer.android.com/kotlin/multiplatform/plugin
+## Проверки и ограничения итерации
 
-При запуске Jetpack SplashScreen остаётся видимым до завершения чтения
-SessionRepository.hasEntered() в Activity-level SharedViewModel. Затем NavHost
-сразу открывает home или welcome. WelcomeViewModel только обрабатывает гостевой
-вход. Ошибка инициализации закрывает splash и показывает повторную попытку.
-Реализации ButtonRepositoryImpl и SessionRepositoryImpl находятся в shared;
-имена репозиториев не зависят от типа источника данных.
+Общие и JVM-тесты проверяют сохранение данных, формат документов Firestore и состояния экранов.
+Android unit-тесты проверяют жизненный цикл ViewModel и публикацию, копирование, отправку и QR одного deeplink.
+Два сценария восстановления после ошибки сохранения и таймаута публикации явно помечены `Ignore` до следующего этапа обработки ошибок.
 
-Kotlin и Compose compiler: 2.4.21; Hilt: 2.60.1. Состояния ViewModel и репозитория
-объявлены как StateFlow с explicit backing field MutableStateFlow, без отдельных
-private-свойств и asStateFlow(). Навигация — SharedFlow с MutableSharedFlow;
-UI собирает события напрямую, включая повторные одинаковые переходы.
-SharedFlow без replay не хранит события при отсутствии подписчика.
-
-Версии Kotlin: https://kotlinlang.org/docs/releases.html
-
-
-## Room + Firestore
-
-`ButtonRepositoryImpl` и Room DAO/Entity находятся в `shared/commonMain`.
-Android Hilt создаёт `ButtonDatabase` (`buttons.db`) и `FirestoreButtonDataSource`.
-Room — источник данных списка; создание своей кнопки работает без сети.
-При первом обращении старый JSON из DataStore переносится в Room. Исходный JSON
-сохраняется, а маркер предотвращает повторный импорт; при сбое миграция повторяется.
-Сессия по-прежнему хранится в DataStore.
-
-API репозитория:
-
-- `add(button)` — сохранить свою кнопку локально.
-- `share(buttonId)` — опубликовать свою кнопку в `sharedButtons/{token}` и вернуть UUID-токен.
-  Повторный вызов обновляет тот же документ. Токен возвращается только после подтверждения сервера.
-- `join(token)` — скачать расшаренную кнопку и сохранить подписку в Room.
-  Повторное присоединение обновляет запись, не создавая дубликат.
-- `load()` — обновить сохранённые подписки с сервера. При ошибке кэш остаётся доступен;
-  ошибка передаётся вызывающему коду. Главный экран вызывает обновление при открытии и по Retry.
-- `buttons` — Flow актуального содержимого Room, включая свои и полученные кнопки.
-
-Токен даёт право чтения всем, кому его передали. Запись разрешена только владельцу.
-Перечисление коллекции запрещено. Это MVP с доступом по токену, без реестра участников,
-push-уведомлений, автоматической фоновой синхронизации и UI для отправки/ввода токена.
-Свои кнопки публикуются при `share`, а не автоматически при локальном сохранении.
-
-Настройка Firebase для Android:
-
-1. Используется существующий `app/google-services.json`.
-2. В Firebase Console создать Cloud Firestore и включить Authentication → Anonymous.
-3. Опубликовать `firestore.rules` в том же проекте (например, `firebase deploy --only firestore:rules --project <project-id>`).
-4. Проверить на двух установках: `add` → `share` на первой, `join(token)` на второй;
-   перезапустить вторую без сети и проверить локальный кэш.
-
-Конфигурация и правила добавлены в репозиторий, но не развёрнуты в облаке автоматически.
-Anonymous Auth создаётся лениво при первом облачном запросе. После удаления данных приложения
-анонимная учётная запись владельца теряется; восстановление через OAuth пока не реализовано.
-Firebase Android SDK остаётся в Android-адаптере. Для iOS потребуется реализация
-`ButtonRemoteDataSource` и создание Room builder на стороне iOS.
-
-Документация: [Room KMP](https://developer.android.com/kotlin/multiplatform/room),
-[Firebase Android](https://firebase.google.com/docs/android/setup).
-
-
-## Общие ViewModel
-
-`shared/commonMain/ui/{welcome,home,create,action}` содержит события, состояния,
-обработчики событий и всю экранную логику. `SharedViewModel` и события навигации
-также находятся в commonMain. Здесь нет Compose, Hilt, Android resources,
-Jetpack ViewModel или SavedStateHandle.
-
-`*ViewModelImpl` в app наследуются от Jetpack ViewModel и делегируют
-`*ViewModelContract` общей реализации. Контракт наследует `CommonViewModel`
-и экранный EventHandler. Android-обёртка переопределяет `coroutineScope` через
-`viewModelScope`, затем в init вызывает `delegate.attach(coroutineScope)`.
-Это явное подключение необходимо: Kotlin delegation не перенаправляет
-внутренние обращения делегата к переопределённым свойствам обёртки.
-Подписки запускаются после attach; при очистке Jetpack ViewModel все общие
-корутины отменяются вместе с её scope. Общая реализация не создаёт свой scope.
-На другой платформе нужно передать scope, принадлежащий её lifecycle.
-
-`ViewModelSavedState` — общий интерфейс для состояния черновика и выбора действия.
-Android-адаптер работает с SavedStateHandle. `ViewError` хранит тип ошибки;
-Android сопоставляет его с локализованным ресурсом через `messageRes`.
-CompositionLocal остаются в app и принимают общие интерфейсы обработчиков.
-
-Проверка общей логики и Android-делегирования:
-
-```powershell
-./gradlew.bat :shared:testAndroidHostTest :app:testDebugUnitTest --tests '*ViewModel*Test'
-```
-
-`ScreenViewModelsTest` перенесён в commonTest. Android `ViewModelDelegationTest`
-проверяет отмену общего коллектора при ViewModelStore.clear() и восстановление
-черновика через SavedStateHandle.
+Ресурсы интерфейса доступны на английском, русском, испанском, португальском, турецком и китайском языках.
+QR-иконка на главной странице пока служит обозначением будущего сканирования.

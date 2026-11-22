@@ -1,16 +1,20 @@
 package mrpapermoon.customebutton.ui.create
 
-import mrpapermoon.customebutton.entity.ButtonColor
+import mrpapermoon.customebutton.ui.Event
 
-sealed class CreateButtonEvent {
+sealed class CreateButtonEvent : Event {
+    /** Selects the wizard [step] directly. */
     data class SelectStep(val step: CreateButtonStep) : CreateButtonEvent()
+
+    /** Requests the next wizard step. */
     data object Next : CreateButtonEvent()
+
+    /** Requests the previous wizard step. */
     data object Previous : CreateButtonEvent()
-    data class ColorChanged(val color: ButtonColor) : CreateButtonEvent()
-    data class TitleChanged(val text: String) : CreateButtonEvent()
-    data class ActionChanged(val text: String) : CreateButtonEvent()
-    data class NotificationChanged(val text: String) : CreateButtonEvent()
+
+    /** Requests local persistence of a valid draft from the confirmation step. */
     data object Save : CreateButtonEvent()
-    data object Cancel : CreateButtonEvent()
+
+    /** Clears the current save error. */
     data object DismissError : CreateButtonEvent()
 }

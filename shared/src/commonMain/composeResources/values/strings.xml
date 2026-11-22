@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Share the button</string>
+    <string name="heart_mark" translatable="false">&lt;3</string>
+    <string name="add_symbol" translatable="false">+</string>
+    <string name="welcome_tagline">Stay close. With one tap.</string>
+    <string name="continue_google">Continue with Google</string>
+    <string name="continue_apple">Continue with Apple</string>
+    <string name="skip">Skip</string>
+    <string name="retry">Try again</string>
+    <string name="back">Back</string>
+    <string name="my_buttons">My buttons</string>
+    <string name="home_tagline">A small tap. A big feeling.</string>
+    <string name="add_button">Add button</string>
+    <string name="empty_title">Connection starts here</string>
+    <string name="empty_description">Create your first button.\nFor example, to say “Miss you”.</string>
+    <string name="open_action">Open action</string>
+    <string name="new_button">New button</string>
+    <string name="color">Color</string>
+    <string name="button_name">Button name</string>
+    <string name="action_name">Action name</string>
+    <string name="notification_text">Notification text</string>
+    <string name="example_title">Miss you</string>
+    <string name="example_action">SOS</string>
+    <string name="example_notification">I miss you!</string>
+    <string name="example_hug_title">Hug</string>
+    <string name="example_hug_action">Sending a hug</string>
+    <string name="example_hug_notification">Sending you a hug!</string>
+    <string name="cancel">Cancel</string>
+    <string name="create">Create</string>
+    <string name="preview">PREVIEW</string>
+    <string name="character_count">%1$d / %2$d</string>
+    <string name="creator_next">Next</string>
+    <string name="creator_previous">Previous step</string>
+    <string name="creator_close">Close</string>
+    <string name="creator_text">Text</string>
+    <string name="creator_review">Review</string>
+    <string name="creator_confirm">Confirm</string>
+    <string name="creator_complete_text">Fill in all three texts before confirming.</string>
+    <string name="share_button">Share button</string>
+    <string name="share_button_copied">Link copied</string>
+    <string name="share_button_copy">Copy link</string>
+    <string name="share_button_error">Could not publish the button. Check your connection and try again.</string>
+    <string name="share_button_link">Invitation link</string>
+    <string name="share_button_loading">Preparing your invitation…</string>
+    <string name="share_button_qr">QR code for the button invitation</string>
+    <string name="share_button_success">Great! You created a new button. Time to share it</string>
+    <string name="share_invitation_message">Someone shared a button with you. Follow this link to add it to your buttons.\n\n%1$s</string>
+    <string name="scan_qr">Scan QR code</string>
+    <string name="select_button_color">Select button color</string>
+</resources>

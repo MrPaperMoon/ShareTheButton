@@ -21,5 +21,9 @@ local.properties
 /shared/build/classes/kotlin/jvm/test/
 
 # Local IDE metadata and Kotlin caches
-/.idea/
+/.idea/*
+!/.idea/codeStyles/
+/.idea/codeStyles/*
+!/.idea/codeStyles/Project.xml
+!/.idea/codeStyles/codeStyleConfig.xml
 /.kotlin/
